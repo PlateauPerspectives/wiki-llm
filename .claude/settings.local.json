@@ -62,7 +62,8 @@
       "WebFetch(domain:www.christianityexplored.org)",
       "Bash(git -C /Users/larsgson/dev/bw/PlateauPerspective/wiki-llm status)",
       "Bash(git -C /Users/larsgson/dev/bw/PlateauPerspective/wiki-llm diff)",
-      "Bash(git -C /Users/larsgson/dev/bw/PlateauPerspective/wiki-llm log --oneline -5)"
+      "Bash(git -C /Users/larsgson/dev/bw/PlateauPerspective/wiki-llm log --oneline -5)",
+      "Bash(python3 build_navtree.py)"
     ]
   }
 }

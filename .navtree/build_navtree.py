@@ -122,42 +122,68 @@ def format_toml_value(val):
     return f'"{val}"'
 
 
-def build_tree(
-    note_name: str,
+def build_trees_bfs(
+    roots: list[tuple[str, Path | None]],
     vault: dict[str, Path],
-    visited: set | None = None,
-    parent_id: str = "",
-    sibling_counter: dict | None = None,
-    max_depth: int = 10,
-    filepath: Path | None = None,
     skip_prefixes: list | None = None,
-    content_id_primary: dict | None = None,
-    is_root: bool = False,
-) -> dict | None:
-    if visited is None:
-        visited = set()
-    if sibling_counter is None:
-        sibling_counter = {"n": 0}
+) -> list[dict]:
+    """Build the full navigation tree using breadth-first traversal.
+
+    Processes ALL nodes at level N before any at level N+1, so pages are
+    claimed at the highest level they naturally appear.
+    """
     if skip_prefixes is None:
         skip_prefixes = ["Sources/", "source"]
-    if content_id_primary is None:
-        content_id_primary = {}
 
-    if filepath is None:
-        filepath = vault.get(note_name)
+    visited = set()
+    content_id_primary = {}
+    root_nodes = []
 
-    resolved_key = str(filepath) if filepath else note_name
-    if max_depth <= 0:
-        return None
-    if resolved_key in visited and not is_root:
-        return None
+    # Create root nodes and seed the queue
+    queue = []  # [(parent_node, child_name, child_path)]
+    root_counter = {"n": 0}
+    for root_name, root_path in roots:
+        node = _make_node(root_name, root_path, root_counter, "", content_id_primary, vault)
+        root_nodes.append(node)
+        if root_path:
+            visited.add(str(root_path))
+        if node["has_content"] and not node.get("redirect_to"):
+            _enqueue_children(node, root_path, vault, visited, skip_prefixes, queue)
 
-    content_id = slugify(note_name)
+    # BFS: process one level at a time
+    while queue:
+        # Reserve all nodes at this level so deeper recursion can't steal them
+        level_items = []
+        for parent_node, child_name, child_path in queue:
+            resolved = str(child_path) if child_path else child_name
+            if resolved in visited:
+                continue
+            level_items.append((parent_node, child_name, child_path))
+            if child_path:
+                visited.add(str(child_path))
+
+        next_queue = []
+        for parent_node, child_name, child_path in level_items:
+            counter = parent_node["_child_counter"]
+            node = _make_node(child_name, child_path, counter, parent_node["id"], content_id_primary, vault)
+            parent_node["children"].append(node)
+            if node["has_content"] and not node.get("redirect_to") and child_path:
+                _enqueue_children(node, child_path, vault, visited, skip_prefixes, next_queue)
+
+        queue = next_queue
+
+    # Strip internal bookkeeping before returning
+    _strip_counters(root_nodes)
+    return root_nodes
+
+
+def _make_node(name, filepath, sibling_counter, parent_id, content_id_primary, vault):
+    content_id = slugify(name)
     has_content = filepath is not None
-    title = get_title(filepath, note_name)
+    title = get_title(filepath, name)
 
     sibling_counter["n"] += 1
-    numeric_segment = f"{sibling_counter['n']:02d}"
+    numeric_segment = str(sibling_counter["n"])
     node_id = f"{parent_id}/{numeric_segment}" if parent_id else numeric_segment
 
     redirect_to = None
@@ -166,36 +192,31 @@ def build_tree(
     else:
         content_id_primary[content_id] = node_id
 
-    node = {
+    return {
         "id": node_id,
         "content_id": content_id,
         "title": title,
         "has_content": has_content,
         "redirect_to": redirect_to,
         "children": [],
+        "_child_counter": {"n": 0},
     }
 
-    if not has_content or redirect_to:
-        return node
 
-    visited.add(resolved_key)
-
-    child_counter = {"n": 0}
+def _enqueue_children(parent_node, filepath, vault, visited, skip_prefixes, queue):
     for link in parse_links(filepath):
         child_name, child_path = resolve_link(link, vault)
         if child_path and str(child_path) in visited:
             continue
         if any(link.startswith(p) for p in skip_prefixes):
             continue
-        child = build_tree(
-            child_name, vault, visited, node_id, child_counter, max_depth - 1,
-            filepath=child_path, skip_prefixes=skip_prefixes,
-            content_id_primary=content_id_primary,
-        )
-        if child is not None:
-            node["children"].append(child)
+        queue.append((parent_node, child_name, child_path))
 
-    return node
+
+def _strip_counters(nodes):
+    for node in nodes:
+        node.pop("_child_counter", None)
+        _strip_counters(node["children"])
 
 
 def build_index_toml(node: dict, vault: dict[str, Path]) -> str:
@@ -474,19 +495,7 @@ def main():
     output_dir.mkdir(parents=True)
 
     skip_prefixes = config.get("skip_prefixes", ["Sources/", "source"])
-    global_visited = set()
-    content_id_primary = {}
-    root_nodes = []
-    root_counter = {"n": 0}
-    for root_name, root_path in roots_from_index:
-        node = build_tree(
-            root_name, vault, global_visited, "", root_counter,
-            filepath=root_path, skip_prefixes=skip_prefixes,
-            content_id_primary=content_id_primary,
-            is_root=True,
-        )
-        if node:
-            root_nodes.append(node)
+    root_nodes = build_trees_bfs(roots_from_index, vault, skip_prefixes=skip_prefixes)
 
     changelog_warnings = validate_changelog(vault_path, vault)
     if changelog_warnings:
