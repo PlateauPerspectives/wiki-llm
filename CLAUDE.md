@@ -20,7 +20,7 @@ Subfolder structure (e.g. Concepts/, Entities/, Sources/) is not fixed. A subfol
 
 ### 3. Raw Is Immutable
 
-Never modify files in `raw/`. They are source material.
+Never modify files in `raw/` or `raw-private/`. They are source material.
 
 ### 4. Index Must Stay Current
 
@@ -58,7 +58,7 @@ Every external URL that is fetched must be logged in `wiki/source-registry.md`. 
 
 For each URL, record:
 - **URL** — the canonical link
-- **Status** — `done`, `revisit`, or `failed`
+- **Status** — `done`, `revisit`, `failed`, or `restricted`
 - **Last Fetched** — date of most recent fetch
 - **Pages Updated** — which wiki pages received content from this URL
 - **Focus / Notes** — what was extracted; what was skipped
@@ -69,10 +69,40 @@ Before fetching a URL during ingest:
 
 The user may mark any URL as `revisit` to request a second pass with a different focus. When revisiting, append new findings to the wiki page rather than replacing existing summaries.
 
+### 11. Private Sources
+
+Some source material cannot be stored in the public repo (copyright, login-only access, etc.). These go in `raw-private/`, which is gitignored.
+
+**Ingest:** Use *"ingest raw-private/\<file\>"* — same workflow as `raw/`, but the wiki page must never quote extensively or reproduce the structure of the original. Summaries must be clearly in the author's own words.
+
+**Link access metadata:** When a private source contains external URLs, some may be behind logins or paywalls. To signal this, place a companion TOML file alongside the source with the same base name and a `.links.toml` extension:
+
+```toml
+# raw-private/report.links.toml — companion to raw-private/report.pdf
+
+["https://example.org/public-paper"]
+access = "public"
+
+["https://intranet.example.org/data"]
+access = "restricted"
+reason = "Requires organizational login"
+
+["https://journal.example.org/article"]
+access = "restricted"
+reason = "Paywall"
+```
+
+If no `.links.toml` exists, treat all links as public and attempt to fetch. When a `.links.toml` is present:
+- `access = "public"` — fetch and summarize normally
+- `access = "restricted"` — do **not** fetch; record in source-registry as `restricted` with the reason; on the wiki page, cite the URL with a note: `(restricted access — summary based on context in source document)`
+
+**Log entries** for private sources must not reveal the filename or contents — use a description like "private source on \[topic\]" in `wiki/log.md`.
+
 ## Directory Layout
 
 ```
-raw/                          # Immutable source documents
+raw/                          # Immutable source documents (public, committed)
+raw-private/                  # Immutable source documents (restricted, gitignored)
 wiki/                         # Claude owns this layer
   index.md                   # Master index — update on every ingest
   log.md                     # Append-only operation log
