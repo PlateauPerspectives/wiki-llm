@@ -14,6 +14,7 @@ An Obsidian vault and AI-assisted knowledge base covering three interconnected d
 
 ```
 raw/                          # Source documents (immutable — never edited)
+raw-private/                  # Restricted sources (gitignored — never committed)
 wiki/                         # AI-managed wiki pages
   index.md                    # Master index
   source-registry.md          # Tracks all fetched external URLs
@@ -37,6 +38,8 @@ Key rules:
 - External content is never stored verbatim (copyright) — only AI-generated summaries with source URLs
 - Every fetched URL is logged in `wiki/source-registry.md` with status, date, and focus
 - `raw/` is immutable — source documents are never modified after being added
+- Restricted sources (copyright, login-only) go in `raw-private/` — gitignored, never committed
+- To mark which links in a private source require authentication, place a `.links.toml` companion file alongside it (e.g. `raw-private/report.links.toml`). If no `.links.toml` exists, all links are treated as public. See `CLAUDE.md` Rule 11 for the format
 
 ## Setting Up Your AI Assistant
 
@@ -76,8 +79,7 @@ Paste the contents of `CLAUDE.md` into your first message at the start of each s
 This project supports multi-user collaboration. New contributors should start with `ONBOARDING.md` for a step-by-step setup guide.
 
 Key workflow rules:
-- Work on a named branch (`yourname/topic`) — no direct pushes to `main`
-- Open a PR using the provided template and wait for review before merge
+- Push directly to `main` — a CI workflow automatically rebuilds the navigation tree after each push
+- Run `git pull --rebase` before pushing (set `git config pull.rebase true` to make this the default)
 - Check `wiki/source-registry.md` before fetching any URL to avoid duplicate work
 - Feed `CLAUDE.md` to your AI tool at session start (Claude Code reads it automatically)
-- Review PRs for content contradictions and overlapping summaries
