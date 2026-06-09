@@ -1,7 +1,7 @@
 ---
 title: "Source Registry"
 type: registry
-last_updated: 2026-05-22
+last_updated: 2026-06-09
 ---
 
 # Source Registry
@@ -73,3 +73,13 @@ Tracks all external URLs that have been fetched and summarised into wiki pages. 
 | https://www.christianityexplored.org/ | done | curl+meta | 2026-05-22 | — | proclaiming-the-good-news | Course exploring Mark's Gospel; one-liner sufficient |
 | https://teeb.biodiversityfinance.net/ | failed | — | 2026-05-22 | — | environment-and-economics | 403 on WebFetch; TEEB initiative homepage |
 | https://ipbes.net/ilk | failed | — | 2026-05-22 | — | local-indigenous-knowledge | 403 on WebFetch; IPBES ILK programme page |
+
+---
+
+## Private Sources
+
+Tracked separately since they are stored in `raw-private/` and do not have external URLs.
+
+| Source | Type | Storage | Last Ingested | Wiki Pages Updated | Focus |
+|--------|------|---------|----------------|--------------------|-------|
+| Redeeming All Things: Integral Mission and Creation Care (Rachel Mander, 2022) | PDF (54 pages) | raw-private/Redeeming.pdf | 2026-06-09 | redeeming-all-things (source page); five-marks-of-mission, stewarding-creation, creation-care (main topic pages); index, log | Theological argument for creation care as integral to gospel and all five marks of mission |

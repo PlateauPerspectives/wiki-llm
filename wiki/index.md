@@ -58,6 +58,7 @@
 - [[Sources/iyrp-2026]] — International Year of Rangelands and Pastoralists 2026
 - [[Sources/lausanne-what-is-just]] — What is fair and just? (Lausanne)
 - [[Sources/rangelands-atlas]] — Rangelands Atlas (FAO/IUCN/UNEP/WWF)
+- [[Sources/redeeming-all-things]] — Redeeming All Things: Integral Mission and Creation Care (Rachel Mander, 2022)
 
 ---
 

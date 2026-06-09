@@ -10,6 +10,24 @@ Append-only record of all ingest and update operations.
 
 ---
 
+## 2026-06-09 — Ingest Rachel Mander Redeeming All Things
+
+**Source:** Redeeming All Things: Integral Mission and Creation Care (Rachel Mander, Micah Global, 2022, 54 pages)
+
+**Storage:** raw-private/Redeeming.pdf
+
+**Pages created (1):**
+- [[Sources/redeeming-all-things]] — Comprehensive theological argument that creation care is integral to gospel and all five marks of mission; Jesus as Creator and Redeemer; creation's interdependence; image-bearing as missiological task; church complicity in ecological injustice; prophetic lament and response
+
+**Pages updated (3):**
+- [[Five Marks of Mission/five-marks-of-mission]] — Added Redeeming All Things to Key Resources
+- [[Five Marks of Mission/stewarding-creation]] — Added Redeeming All Things as first source
+- [[Creation Care/creation-care]] — Updated Redeeming All Things reference with full source link
+
+**Index updated:** Yes
+
+---
+
 ## 2026-06-05 — Ingest Melba Padilla Maggay Integral Mission PDF
 
 **Source:** Integral Mission: Biblical Foundations (Melba Padilla Maggay, Micah Global)
