@@ -21,8 +21,16 @@ wiki/                         # AI-managed wiki pages
   Five Marks of Mission/      # Topic 1 — proclamation, service, justice, creation care
   Creation Care/              # Topic 2 — ecosystems, biodiversity, stewardship
   Nomadic Pastoralism/        # Topic 3 — mobility, commons, indigenous knowledge
+.navtree/                     # Navigation-tree build (run by CI)
+docs/                         # How-to guides for people (not part of the wiki)
+scripts/                      # new_sibling_wiki.py — scaffold a wiki on another subject
 .obsidian/                    # Obsidian vault config
 ```
+
+## Guides
+
+- [Updating the wiki](docs/updating-the-wiki.md) — ingest, query, lint, revisit, troubleshooting
+- [Creating a sibling wiki](docs/creating-a-sibling-wiki.md) — start a new wiki like this one on a different subject
 
 ## Browsing
 
@@ -76,7 +84,7 @@ Paste the contents of `CLAUDE.md` into your first message at the start of each s
 
 ## Contributing
 
-This project supports multi-user collaboration. New contributors should start with `ONBOARDING.md` for a step-by-step setup guide.
+This project supports multi-user collaboration. New contributors should start with `ONBOARDING.md` for a step-by-step setup guide, then [`docs/updating-the-wiki.md`](docs/updating-the-wiki.md).
 
 Key workflow rules:
 - Push directly to `main` — a CI workflow automatically rebuilds the navigation tree after each push

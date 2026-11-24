@@ -50,62 +50,45 @@ You now have a local copy of the entire wiki.
 The wiki conventions are defined in `CLAUDE.md`. Your AI assistant needs to follow these rules.
 
 - **Claude Code:** reads `CLAUDE.md` automatically — no extra setup needed
-- **Cursor / Copilot / other tools:** paste the contents of `CLAUDE.md` into your AI tool at the start of each session, or configure it as a system prompt
+- **Cursor / Copilot / other tools:** see "Setting Up Your AI Assistant" in `README.md`, or paste the contents of `CLAUDE.md` into your AI tool at the start of each session
 
 ## How to Contribute
 
-You never edit `main` directly. Instead, you work on your own branch and submit a pull request (PR) for review. GitHub Desktop makes this straightforward.
+Everyone works directly on `main`. After each push, a GitHub Action rebuilds the navigation tree and commits it back to `main` — so **always pull before you start and before you push**.
 
-### 1. Create a branch for your work
+### 1. Get the latest changes
 
 1. In GitHub Desktop, make sure **Current branch** (top bar) says `main`
-2. Click **Current branch** > **New branch**
-3. Name it `yourname/topic-description` (e.g. `anna/add-water-governance-sources`)
-4. Click **Create branch**
-
-You're now working on your own branch. All changes happen here, separate from `main`.
+2. Click **Fetch origin**, then **Pull origin** if there are new changes
 
 ### 2. Do your work
 
-Use your AI assistant to ingest sources or update pages. The AI will create and edit files in the `wiki/` folder on your computer.
+Use your AI assistant to ingest sources or update pages (see [`docs/updating-the-wiki.md`](docs/updating-the-wiki.md)). The AI will create and edit files in the `wiki/` folder on your computer.
 
 Before fetching any external URL, check `wiki/source-registry.md` to make sure it hasn't already been processed.
 
 ### 3. Review and commit your changes
 
-After your AI assistant has made changes:
-
 1. Open GitHub Desktop — it automatically detects all changed files
 2. In the left panel, review the list of changed files. Click any file to see what changed (green = added, red = removed)
 3. Check the boxes next to the files you want to include
-4. At the bottom left, write a short summary of what you changed (e.g. "Add water governance sources and update index")
-5. Click **Commit to yourname/topic-description**
+4. At the bottom left, write a short summary of what you changed (e.g. "Ingest water governance sources")
+5. Click **Commit to main**
 
-You can commit multiple times on your branch — think of each commit as a checkpoint.
+### 4. Push
 
-### 4. Push your branch to GitHub
+1. Click **Fetch origin** first. If it offers **Pull origin**, pull first (this brings in the latest CI commit)
+2. Click **Push origin**
 
-After committing, click **Publish branch** (first time) or **Push origin** (subsequent pushes) in the top bar. This uploads your branch to GitHub.
+A minute or so later you'll see a `[navtree] Rebuild navigation tree` commit appear on `main` — that's the automation, not someone else's edit.
 
-### 5. Open a pull request
+### Optional: ask for review with a pull request
 
-1. After pushing, GitHub Desktop shows a banner: **Create Pull Request** — click it
-2. This opens GitHub in your browser with the PR template pre-filled
-3. Go through the checklist in the template (conventions followed, source registry updated, etc.)
-4. Click **Create pull request**
-5. Wait for a reviewer to approve, then it gets merged into `main`
-
-### 6. Stay up to date with main
-
-Before starting new work, get the latest changes:
-
-1. In GitHub Desktop: switch to `main` using the **Current branch** dropdown
-2. Click **Fetch origin** in the top bar, then **Pull origin** if there are new changes
-3. Create a new branch from the updated `main` (step 1 above)
+For larger or uncertain changes you can still use a branch and pull request: **Current branch** > **New branch** (`yourname/topic`), commit, **Publish branch**, then **Create Pull Request**. The PR template has a checklist of the wiki conventions.
 
 ## Key Rules to Remember
 
-1. **Never push directly to `main`** — always use a branch and PR
+1. **Pull before you push** — CI commits to `main` after every push
 2. **Check the source registry** before fetching any URL — avoid duplicate work
 3. **Never modify files in `raw/`** — they are immutable source material
 4. **Never copy external content verbatim** — only AI-generated summaries with source URLs
@@ -148,14 +131,13 @@ cd wiki-llm
 | What you want to do | Command |
 |---------------------|---------|
 | See what branch you're on | `git branch` |
+| One-time: rebase on pull | `git config pull.rebase true` |
 | Switch to main | `git checkout main` |
 | Pull latest changes | `git pull` |
-| Create a new branch | `git checkout -b yourname/topic` |
 | See what's changed | `git status` |
 | Stage wiki changes | `git add wiki/` |
 | Stage a new source file | `git add raw/your-file.docx` |
 | Commit staged changes | `git commit -m "your message"` |
-| Push to GitHub (first time) | `git push -u origin yourname/topic` |
-| Push to GitHub (after first time) | `git push` |
+| Pull again, then push | `git pull && git push` |
 
-After pushing, open a pull request on [github.com/PlateauPerspectives/wiki-llm](https://github.com/PlateauPerspectives/wiki-llm).
+For an optional review, push a branch (`git checkout -b yourname/topic`, `git push -u origin yourname/topic`) and open a pull request on [github.com/PlateauPerspectives/wiki-llm](https://github.com/PlateauPerspectives/wiki-llm).

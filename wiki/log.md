@@ -1,7 +1,7 @@
 ---
 title: "Operation Log"
 type: log
-last_updated: 2026-06-05
+last_updated: 2026-11-24
 ---
 
 # Operation Log
@@ -10,11 +10,23 @@ Append-only record of all ingest and update operations.
 
 ---
 
+## 2026-11-24 — Tooling and documentation cleanup
+
+**No wiki content changed.** Maintenance only:
+- Removed the OpenKnowledge editor integration (never committed; conflicted with Rule 8 and Obsidian wikilinks)
+- Navtree build: frontmatter lists now emitted as real TOML arrays; strings escaped; `vault-changelog.toml` now read from the repo root
+- Fixed paths/descriptions in `CLAUDE.md` (NavTree section), `.navtree/README.md`; `ONBOARDING.md` aligned with push-to-main workflow
+- Added `docs/` (how-to guides) and `scripts/new_sibling_wiki.py` (scaffold a wiki on another subject)
+- Rule 11 fix: removed a private filename from the 2026-06-09 entry
+- [[source-registry]] — added `restricted` to the status key
+
+---
+
 ## 2026-06-09 — Ingest Rachel Mander Redeeming All Things
 
 **Source:** Redeeming All Things: Integral Mission and Creation Care (Rachel Mander, Micah Global, 2022, 54 pages)
 
-**Storage:** raw-private/Redeeming.pdf
+**Storage:** private source on creation care and integral mission
 
 **Pages created (1):**
 - [[Sources/redeeming-all-things]] — Comprehensive theological argument that creation care is integral to gospel and all five marks of mission; Jesus as Creator and Redeemer; creation's interdependence; image-bearing as missiological task; church complicity in ecological injustice; prophetic lament and response

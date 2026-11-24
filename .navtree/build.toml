@@ -9,3 +9,7 @@ skip_prefixes = ["Sources/", "source"]
 
 # Notes to exclude from roots (by filename stem)
 exclude_roots = ["log"]
+
+# Where AI agents write vault-changelog.toml (relative to .navtree/).
+# ".." = repository root, as documented in CLAUDE.md.
+changelog_dir = ".."

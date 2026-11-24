@@ -13,3 +13,6 @@ example/
 /output/
 raw-private/
 .claude/
+
+# Python
+__pycache__/

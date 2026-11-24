@@ -236,16 +236,23 @@ Output a report and ask if fixes should be applied.
 ## NavTree vault coordination
 
 Some notes in this vault appear at multiple positions in the navigation
-tree built by ../.navtree/build_navtree.py. Before making structural
+tree built by `.navtree/build_navtree.py`. Before making structural
 changes (rename, restructure links, split, delete), read
-../.navtree/output/redirects.toml to check if the note is multi-position.
+`.navtree/output/redirects.toml` to check if the note is multi-position.
+If that file does not exist, no note is currently multi-position.
+
+The tree's roots are the top-level (non-indented) `- [[...]]` bullets under
+the `##` headings in `wiki/index.md`. Links into `Sources/`, `log` and
+`source-registry` are excluded by `.navtree/build.toml`. Children are found by
+following `[[wikilinks]]` inside each page; links into `Sources/` are skipped.
+Only `[[wikilinks]]` are followed — standard `[text](path.md)` links are not.
 
 Rules:
 - Editing content: always safe, no logging needed.
 - Adding new notes/links to non-multi-position notes: safe, no logging.
 - Rename/restructure/split/delete a note listed in redirects.toml:
-  make the change, then append an entry to vault-changelog.toml
-  (in this vault root):
+  make the change, then append an entry to `vault-changelog.toml`
+  in the repository root (next to this file — not inside `wiki/`):
 
   [[change]]
   date = "YYYY-MM-DD"

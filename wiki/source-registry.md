@@ -1,7 +1,7 @@
 ---
 title: "Source Registry"
 type: registry
-last_updated: 2026-06-09
+last_updated: 2026-11-24
 ---
 
 # Source Registry
@@ -13,6 +13,7 @@ Tracks all external URLs that have been fetched and summarised into wiki pages. 
 - **done** — fetched and summarised
 - **revisit** — needs another pass (new focus, or source updated)
 - **failed** — fetch failed (paywall, 403, dead link)
+- **restricted** — not fetched (login/paywall, per a `.links.toml`)
 
 ## Fetch Method Key
 

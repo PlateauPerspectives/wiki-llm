@@ -6,7 +6,7 @@ and outputs the v2 format:
 - Hierarchical numbered folders with index.toml + content.md
 - search-positions.json for search result linking
 - config.toml for global settings
-- redirects.toml in the vault for AI agent awareness of multi-position content
+- redirects.toml in the output dir for AI agent awareness of multi-position content
 """
 
 import json
@@ -73,8 +73,24 @@ def find_vault_source(content_id: str, vault: dict[str, Path]) -> Path | None:
     return None
 
 
+def _parse_scalar(raw: str):
+    """Parse a YAML-ish scalar or inline list (``[a, b]``) into a Python value."""
+    val = raw.strip()
+    if val.startswith("[") and val.endswith("]"):
+        inner = val[1:-1].strip()
+        if not inner:
+            return []
+        return [item.strip().strip("\"'") for item in inner.split(",") if item.strip()]
+    return val.strip("\"'")
+
+
 def parse_frontmatter(filepath: Path) -> dict:
-    """Extract YAML frontmatter fields from a markdown file."""
+    """Extract YAML frontmatter fields from a markdown file.
+
+    Supports scalars, inline lists (``tags: [a, b]``), block lists
+    (``tags:`` followed by ``  - a`` lines) and one level of nested mappings
+    (used for media config sections).
+    """
     if not filepath or not filepath.exists():
         return {}
     text = filepath.read_text(encoding="utf-8")
@@ -90,16 +106,26 @@ def parse_frontmatter(filepath: Path) -> dict:
             fields[current_section] = {}
             continue
         if current_section:
+            item_match = re.match(r"^\s+-\s+(.+)$", line)
             kv_match = re.match(r"^\s+(\w[\w_]*):\s*(.+)$", line)
-            if kv_match:
-                fields[current_section][kv_match.group(1)] = kv_match.group(2).strip().strip("\"'")
-            elif re.match(r"^\S", line):
+            if item_match:
+                if not isinstance(fields[current_section], list):
+                    fields[current_section] = []
+                fields[current_section].append(item_match.group(1).strip().strip("\"'"))
+                continue
+            if kv_match and isinstance(fields[current_section], dict):
+                fields[current_section][kv_match.group(1)] = _parse_scalar(kv_match.group(2))
+                continue
+            if re.match(r"^\S", line):
                 current_section = None
         if not current_section:
             kv_match = re.match(r"^(\w[\w_]*):\s*(.+)$", line)
             if kv_match:
-                val = kv_match.group(2).strip().strip("\"'")
-                fields[kv_match.group(1)] = val
+                fields[kv_match.group(1)] = _parse_scalar(kv_match.group(2))
+    # An empty block (``key:`` with nothing under it) means an empty value.
+    for k, v in fields.items():
+        if v == {}:
+            fields[k] = ""
     return fields
 
 
@@ -113,13 +139,21 @@ def get_title(filepath: Path, fallback_name: str) -> str:
     return title
 
 
+def toml_str(val) -> str:
+    """Quote a value as a TOML basic string, escaping backslashes and quotes."""
+    escaped = str(val).replace("\\", "\\\\").replace('"', '\\"')
+    return f'"{escaped}"'
+
+
 def format_toml_value(val):
     """Format a Python value as a TOML literal."""
     if isinstance(val, bool):
         return "true" if val else "false"
     if isinstance(val, (int, float)):
         return str(val)
-    return f'"{val}"'
+    if isinstance(val, list):
+        return "[" + ", ".join(format_toml_value(v) for v in val) + "]"
+    return toml_str(val)
 
 
 def build_trees_bfs(
@@ -223,12 +257,12 @@ def build_index_toml(node: dict, vault: dict[str, Path]) -> str:
     """Build index.toml content for a node."""
     cid = node["content_id"]
     lines = [
-        f'content_id = "{cid}"',
-        f'title = "{node["title"]}"',
+        f"content_id = {toml_str(cid)}",
+        f"title = {toml_str(node['title'])}",
     ]
 
     if node.get("redirect_to"):
-        lines.append(f'redirect_to = "{node["redirect_to"]}"')
+        lines.append(f"redirect_to = {toml_str(node['redirect_to'])}")
     else:
         source = find_vault_source(cid, vault)
         fm = parse_frontmatter(source) if source else {}
@@ -399,7 +433,7 @@ def write_multi_position_log(output_dir: Path, positions: dict, content_map: dic
         title = content_map.get(cid, {}).get("title", cid)
         tree_ids = [p["tree_id"] for p in pos_list]
         lines.append("[[multi_position]]")
-        lines.append(f'content = "{title}"')
+        lines.append(f"content = {toml_str(title)}")
         lines.append(f'content_id = "{cid}"')
         quoted = ", ".join(f'"{t}"' for t in tree_ids)
         lines.append(f"positions = [{quoted}]")
@@ -409,12 +443,12 @@ def write_multi_position_log(output_dir: Path, positions: dict, content_map: dic
     (output_dir / "redirects.toml").write_text("\n".join(lines), encoding="utf-8")
 
 
-def validate_changelog(vault_path: Path, vault: dict[str, Path]) -> list[str]:
+def validate_changelog(changelog_dir: Path, vault: dict[str, Path]) -> list[str]:
     """Validate vault-changelog.toml entries against current vault state.
 
     Returns a list of warning messages for unresolved references.
     """
-    changelog_path = vault_path / "vault-changelog.toml"
+    changelog_path = changelog_dir / "vault-changelog.toml"
     if not changelog_path.exists() or not tomllib:
         return []
 
@@ -443,13 +477,13 @@ def validate_changelog(vault_path: Path, vault: dict[str, Path]) -> list[str]:
     return warnings
 
 
-def archive_changelog(vault_path: Path) -> None:
+def archive_changelog(changelog_dir: Path) -> None:
     """Move processed changelog entries to vault-changelog.archive.toml."""
-    changelog_path = vault_path / "vault-changelog.toml"
+    changelog_path = changelog_dir / "vault-changelog.toml"
     if not changelog_path.exists():
         return
 
-    archive_path = vault_path / "vault-changelog.archive.toml"
+    archive_path = changelog_dir / "vault-changelog.archive.toml"
     content = changelog_path.read_text(encoding="utf-8")
 
     if archive_path.exists():
@@ -478,6 +512,8 @@ def main():
     config = load_build_config()
     vault_path = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(config.get("vault_path", "wiki"))
     output_dir = Path(sys.argv[2]) if len(sys.argv) > 2 else Path(config.get("output_dir", "output"))
+    # vault-changelog.toml lives in the repo root by default (see CLAUDE.md).
+    changelog_dir = Path(config.get("changelog_dir", vault_path))
 
     vault = load_vault(vault_path)
     roots_from_index = parse_roots_from_index(vault_path, vault, config)
@@ -497,7 +533,7 @@ def main():
     skip_prefixes = config.get("skip_prefixes", ["Sources/", "source"])
     root_nodes = build_trees_bfs(roots_from_index, vault, skip_prefixes=skip_prefixes)
 
-    changelog_warnings = validate_changelog(vault_path, vault)
+    changelog_warnings = validate_changelog(changelog_dir, vault)
     if changelog_warnings:
         print("Changelog warnings:")
         for w in changelog_warnings:
@@ -513,7 +549,7 @@ def main():
     content_map = collect_content_map(root_nodes)
     write_multi_position_log(output_dir, positions, content_map)
 
-    archive_changelog(vault_path)
+    archive_changelog(changelog_dir)
 
     total = count_nodes(root_nodes)
     redirects = count_redirects(root_nodes)
