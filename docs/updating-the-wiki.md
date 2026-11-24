@@ -4,12 +4,26 @@ This guide covers everyday work: adding sources, asking questions, tidying up. Y
 
 > **First time?** Do the setup in [`../ONBOARDING.md`](../ONBOARDING.md) first (GitHub, Obsidian, an AI assistant).
 
+## The golden rules
+
+Changes go straight to `main` with no reviewer, so these habits are what keep the wiki healthy. The AI handles the rest of `CLAUDE.md`.
+
+1. **Pull before you start.** That way the AI sees the latest `index.md` and `source-registry.md`, and won't redo a source someone else has already ingested.
+2. **Pull again right before you push.** A bot commits to `main` after every push, so your copy is usually one commit behind.
+3. **You are the reviewer.** Read the AI's change summary and the diff before you commit (Step 5 below).
+4. **Make sure the bookkeeping got done:** `wiki/index.md`, `wiki/log.md` and `wiki/source-registry.md` updated. This is the step that gets lost when a session is cut short.
+5. **Never commit anything from `raw-private/`.**
+6. **Ask the AI to do renames, splits and deletes.** It knows to check `.navtree/output/redirects.toml` first.
+
+"Pull" means **Pull origin** in GitHub Desktop, or `git pull --rebase` in a terminal. *Fetch* on its own only checks for changes and doesn't apply them.
+
+Want a second pair of eyes on a big or uncertain change? Use a branch and pull request instead (see "Optional: ask for review" in [`../ONBOARDING.md`](../ONBOARDING.md)).
+
 ---
 
 ## Before every session (1 minute)
 
-1. **Pull the latest changes.** GitHub Desktop: *Fetch origin* → *Pull origin*. Terminal: `git pull`.
-   A bot commits to `main` after every push, so skipping this is the #1 cause of push errors.
+1. **Pull the latest changes** (golden rule 1). GitHub Desktop: *Fetch origin* → *Pull origin*. Terminal: `git pull --rebase`.
 2. **Open the project in your AI assistant.**
    - *Claude Code:* open a terminal in the repo folder and run `claude`. It reads `CLAUDE.md` automatically.
    - *Other tools:* make sure the tool has `CLAUDE.md` loaded (see "Setting Up Your AI Assistant" in [`../README.md`](../README.md)).
@@ -75,10 +89,13 @@ The AI will:
 
 ### Step 5: Review
 
-Quick checklist (also in the pull request template):
+Nobody else checks this before it goes live, so take two minutes. Read the AI's change summary, look at the changed files (GitHub Desktop shows a diff for each one), then go through the checklist (it's also in the pull request template):
 
 - [ ] Pages are under the right topic and read sensibly
 - [ ] New pages appear in `wiki/index.md`
+- [ ] `wiki/log.md` has a new entry for this ingest
+- [ ] Every URL the AI fetched is in `wiki/source-registry.md`
+- [ ] No files from `raw-private/` appear in the list of changed files
 - [ ] Unsourced claims are marked `[needs verification]` rather than stated as fact
 - [ ] Nothing was copied wholesale from a website or private document
 - [ ] For private sources: `wiki/log.md` describes the source generically, **without** its filename

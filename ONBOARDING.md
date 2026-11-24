@@ -88,11 +88,12 @@ For larger or uncertain changes you can still use a branch and pull request: **C
 
 ## Key Rules to Remember
 
-1. **Pull before you push** — CI commits to `main` after every push
-2. **Check the source registry** before fetching any URL — avoid duplicate work
-3. **Never modify files in `raw/`** — they are immutable source material
-4. **Never copy external content verbatim** — only AI-generated summaries with source URLs
-5. **Feed `CLAUDE.md` to your AI tool** — it contains all the conventions
+1. **Pull before you start, and again before you push.** CI commits to `main` after every push.
+2. **You are the reviewer.** Check the changed files before committing, because nobody reviews pushes to `main`.
+3. **Check the source registry** before fetching any URL, to avoid duplicate work.
+4. **Never modify files in `raw/`** — they are immutable source material
+5. **Never copy external content verbatim** — only AI-generated summaries with source URLs
+6. **Feed `CLAUDE.md` to your AI tool** — it contains all the conventions
 
 ## Getting Help
 
